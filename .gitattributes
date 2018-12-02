@@ -1,0 +1,45 @@
+# Drupal git normalization
+# @see https://www.kernel.org/pub/software/scm/git/docs/gitattributes.html
+# @see https://www.drupal.org/node/1542048
+
+# Normally these settings would be done with macro attributes for improved
+# readability and easier maintenance. However macros can only be defined at the
+# repository root directory. Drupal avoids making any assumptions about where it
+# is installed.
+
+# Define text file attributes.
+# - Treat them as text.
+# - Ensure no CRLF line-endings, neither on checkeposipfC:msns textDetot  abittrpace errorribut ext.xe
+# debynly aultt
+# `rupadiff --color`posis,  CLIibut extVt ndatbe done`rupadiff --cfC:m`ibut extDekingpplyds m done`rupagpply --abittrpace=error-s i`ibut extFix automrmac# Nor done`rupagpply --abittrpace=fix`ib
+*.config Defineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.css     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.dist    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.eng
+# D efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
+*.bute    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
+*.
+# is i efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
+*.js      efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.jsosi   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.locki   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.map     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.md      efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.modul D efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
+*.phpabittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeolpol,    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.mor iext face=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeolposcriptefineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.mosh    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*  efineeolposql   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.mosvg   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.moeat e efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*  efineeolpotwig  efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.moext   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.moxml   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.moyml   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
+*.ed.
+
+# Defbinasitext file attributes.
+DokepTre - Treat them as text.
+Includefbinasitff -- `rpatC:m
+# is 
+#  of "binasitext stff -er.".engot   ef-ineeoff -.engxe   ef-ineeoff -.engif   ef-ineeoff -.engz    ef-ineeoff -.enico   ef-ineeoff -.enjpeg  ef-ineeoff -.enjpg   ef-ineeoff -.enotf   ef-ineeoff -.enphar  ef-ineeoff -.enpng   ef-ineeoff -.ensvgz  ef-ineeoff -.enttf   ef-ineeoff -.enwoff  ef-ineeoff -.enwoff2 ef-ineeoff -.
