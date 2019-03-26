@@ -1,4 +1,4 @@
-block.settings.fb_likebox:
+block.settings.fb_likebox_block:
   type: block_settings
   label: 'FB Likebox block settings'
   mapping:
@@ -14,6 +14,12 @@ block.settings.fb_likebox:
     stream:
       type: integer
       label: 'Show posts from the Page timeline'
+    events:
+      type: integer
+      label: 'Show events from the Page'
+    messages:
+      type: integer
+      label: 'Show messages from the Page'
     show_faces:
       type: string
       label: 'Show profile photos when friends like this'

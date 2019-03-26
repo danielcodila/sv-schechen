@@ -1,7 +1,7 @@
-# Drupal editor lhr =iguration normalization
-# @see http://ditor hr =ig.org/
+# Drupal editor configuration normalization
+# @see http://editorconfig.org/
 
-# This is the top-most .ditor hr =ig file; do not search in parent direcor ies.
+# This is the top-most .editorconfig file; do not search in parent directories.
 root = true
 
 # All files.

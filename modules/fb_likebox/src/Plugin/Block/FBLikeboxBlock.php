@@ -1,8 +1,4 @@
 <?php
-/**
- * @file
- * Contains \Drupal\fb_likebox\Plugin\Block\FBLikeboxBlock.
- */
 
 namespace Drupal\fb_likebox\Plugin\Block;
 
@@ -13,9 +9,9 @@ use Drupal\Core\Form\FormStateInterface;
  * Provides a configurable block with Facebook Likebox's plugin.
  *
  * @Block(
- *  id = "fb_likebox_block",
- *  admin_label = @Translation("FB Likebox"),
- *  category = @Translation("FB Likebox"),
+ *   id = "fb_likebox_block",
+ *   admin_label = @Translation("FB Likebox"),
+ *   category = @Translation("FB Likebox")
  * )
  */
 class FBLikeboxBlock extends BlockBase {
@@ -28,46 +24,56 @@ class FBLikeboxBlock extends BlockBase {
     $config = $this->getConfiguration();
 
     // Facebook Widget settings.
-    $form['fb_likebox_display_settings'] = array(
+    $form['fb_likebox_display_settings'] = [
       '#type' => 'details',
       '#title' => $this->t('Display options'),
       '#open' => TRUE,
-    );
-    $form['fb_likebox_display_settings']['url'] = array(
+    ];
+    $form['fb_likebox_display_settings']['url'] = [
       '#type' => 'url',
       '#title' => $this->t('Facebook Page URL'),
       '#default_value' => $config['url'],
       '#description' => $this->t('Enter the Facebook Page URL. I.e.: https://www.facebook.com/FacebookDevelopers'),
       '#required' => TRUE,
-    );
-    $form['fb_likebox_display_settings']['app_id'] = array(
+    ];
+    $form['fb_likebox_display_settings']['app_id'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Facebook App ID'),
       '#default_value' => $config['app_id'],
-    );
-    $form['fb_likebox_display_settings']['hide_header'] = array(
+    ];
+    $form['fb_likebox_display_settings']['hide_header'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Hide cover photo in the header'),
       '#default_value' => $config['hide_header'],
-    );
-    $form['fb_likebox_display_settings']['stream'] = array(
+    ];
+    $form['fb_likebox_display_settings']['stream'] = [
       '#type' => 'checkbox',
       '#title' => $this->t("Show posts from the Page's timeline"),
       '#default_value' => $config['stream'],
-    );
-    $form['fb_likebox_display_settings']['show_faces'] = array(
+    ];
+    $form['fb_likebox_display_settings']['events'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show posts from the Page'),
+      '#default_value' => $config['events'],
+    ];
+    $form['fb_likebox_display_settings']['messages'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Show messages from the Page'),
+      '#default_value' => $config['messages'],
+    ];
+    $form['fb_likebox_display_settings']['show_faces'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Show profile photos when friends like this'),
       '#default_value' => $config['show_faces'],
-    );
-    $form['fb_likebox_display_settings']['title'] = array(
+    ];
+    $form['fb_likebox_display_settings']['title'] = [
       '#type' => 'textfield',
       '#title' => $this->t('iFrame title attribute'),
       '#default_value' => $config['title'],
       '#description' => $this->t('The value of the title attribute.'),
       '#required' => TRUE,
-    );
-    $form['fb_likebox_display_settings']['width'] = array(
+    ];
+    $form['fb_likebox_display_settings']['width'] = [
       '#type' => 'number',
       '#title' => $this->t('Width'),
       '#default_value' => $config['width'],
@@ -75,39 +81,38 @@ class FBLikeboxBlock extends BlockBase {
       '#max' => 500,
       '#description' => $this->t('The width of the Facebook likebox. Must be a number between 180 and 500, limits included.'),
       '#required' => TRUE,
-    );
-    $form['fb_likebox_display_settings']['height'] = array(
+    ];
+    $form['fb_likebox_display_settings']['height'] = [
       '#type' => 'number',
       '#title' => $this->t('Height'),
       '#default_value' => $config['height'],
       '#min' => 70,
       '#description' => $this->t('The height of the plugin in pixels. Must be a number bigger than 70.'),
       '#required' => TRUE,
-    );
-    $form['fb_likebox_display_settings']['hide_cta'] = array(
+    ];
+    $form['fb_likebox_display_settings']['hide_cta'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Hide the custom call to action button (if available)'),
       '#default_value' => $config['hide_cta'],
-    );
-    $form['fb_likebox_display_settings']['small_header'] = array(
+    ];
+    $form['fb_likebox_display_settings']['small_header'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Use the small header instead'),
       '#default_value' => $config['small_header'],
-    );
-    $form['fb_likebox_display_settings']['adapt_container_width'] = array(
+    ];
+    $form['fb_likebox_display_settings']['adapt_container_width'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Try to fit inside the container width'),
       '#default_value' => $config['adapt_container_width'],
-    );
-    $form['fb_likebox_display_settings']['language'] = array(
+    ];
+    $form['fb_likebox_display_settings']['language'] = [
       '#type' => 'select',
       '#title' => t('Choose your language'),
       '#options' => $this->likeboxLanguages(),
       '#default_value' => $config['language'],
-    );
+    ];
     return $form;
   }
-
 
   /**
    * {@inheritdoc}
@@ -126,6 +131,17 @@ class FBLikeboxBlock extends BlockBase {
 
     $config = $this->getConfiguration();
 
+    $fb_tabs = [];
+    if ($config['stream'] == 1) {
+      $fb_tabs[] = 'timeline';
+    }
+    if ($config['events'] == 1) {
+      $fb_tabs[] = 'events';
+    }
+    if ($config['messages'] == 1) {
+      $fb_tabs[] = 'messages';
+    }
+
     $render['root-div'] = [
       '#type' => 'container',
       '#attributes' => [
@@ -140,26 +156,19 @@ class FBLikeboxBlock extends BlockBase {
         'data-href' => $config['url'],
         'data-width' => $config['width'],
         'data-height' => $config['height'],
+        'data-tabs' => implode(',', $fb_tabs),
         'data-hide-cover' => $config['hide_header'],
         'data-show-facepile' => $config['show_faces'],
-        'data-show-posts' => $config['stream'],
         'data-hide-cta' => $config['hide_cta'],
         'data-small-header' => $config['small_header'],
         'data-adapt-container-width' => $config['adapt_container_width'],
       ],
     ];
-
-    $render['block']['child'] = [
-      '#type' => 'container',
-      '#attributes' => [
-        'class' => ['fb-xfbml-parse-ignore'],
-      ],
-    ];
-    $render['block']['child']['blockquote'] = [
+    $render['block']['blockquote'] = [
       '#type' => 'link',
       '#title' => $config['title'],
       '#href' => $config['url'],
-      '#prefix' => '<blockquote cite="' . $config['url'] . '">',
+      '#prefix' => '<blockquote cite="' . $config['url'] . '" class = "fb-xfbml-parse-ignore">',
       '#suffix' => '</blockquote>',
     ];
     $render['#attached']['library'][] = 'fb_likebox/drupal.fb_likebox';
@@ -177,12 +186,13 @@ class FBLikeboxBlock extends BlockBase {
       'app_id' => '',
       'hide_header' => '',
       'stream' => '',
+      'events' => '',
+      'messages' => '',
       'show_faces' => '',
       'title' => '',
       'width' => '',
       'height' => '',
       'hide_cta' => '',
-      'small_cta' => '',
       'small_header' => '',
       'adapt_container_width' => '',
       'language' => [],
@@ -196,7 +206,7 @@ class FBLikeboxBlock extends BlockBase {
    *   Returns a list of all available facebook likebox languages.
    */
   protected function likeboxLanguages() {
-    return [
+    $languages = [
       'af_ZA' => $this->t('Afrikaans'),
       'ak_GH' => $this->t('Akan'),
       'am_ET' => $this->t('Amharic'),
@@ -284,7 +294,7 @@ class FBLikeboxBlock extends BlockBase {
       'nb_NO' => $this->t('Norwegian (bokmal)'),
       'nd_ZW' => $this->t('Ndebele'),
       'ne_NP' => $this->t('Nepali'),
-      'nl_BE' => $this->t('Dutch (België)'),
+      'nl_BE' => $this->t('Dutch (Belgium)'),
       'nl_NL' => $this->t('Dutch'),
       'nn_NO' => $this->t('Norwegian (nynorsk)'),
       'ny_MW' => $this->t('Chewa'),
@@ -337,6 +347,8 @@ class FBLikeboxBlock extends BlockBase {
       'zu_ZA' => $this->t('Zulu'),
       'zz_TR' => $this->t('Zazaki'),
     ];
+    asort($languages);
+    return $languages;
   }
 
 }

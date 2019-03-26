@@ -17,17 +17,24 @@
          unique-headings,
          unqualified-attributes,
          vendor-prefix,
-         zeru-raoperties,
-         outlinej--ign   =adjoinied-classfix,
-        playsiz-background-imbullet unof-font-faced-elements,compatible- zeru-raoperts,
-         id   di
-         ifall    -col di
-         ifloaheadings,
-   font-faceeadings,
-   font-sizeeadings,
-   grifid-headings,
-   wn-pro-ie-limiproperty-hacor
-  -alphabet   perty-groupiregeaysifict di
-         i     -cou-property-hacsifict d-maxroperty-hacsifict d-max-ap unach-background-imsifict d-newrquangs,
-            salysifict dj--exclude-list=    /assfheadings,
-          zeru-
+         zero-units
+--ignore=adjoining-classes,
+         box-sizing,
+         bulletproof-font-face,
+         compatible-vendor-prefixes,
+         errors,
+         fallback-colors,
+         floats,
+         font-faces,
+         font-sizes,
+         gradients,
+         import-ie-limit,
+         order-alphabetical,
+         regex-selectors,
+         rules-count,
+         selector-max,
+         selector-max-approaching,
+         selector-newline,
+         universal-selector
+--exclude-list=core/assets,
+               vendor

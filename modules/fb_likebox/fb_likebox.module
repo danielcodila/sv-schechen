@@ -27,7 +27,7 @@ function fb_likebox_theme() {
         'fb_url' => NULL,
         'fb_colorscheme' => NULL,
         'fb_header' => NULL,
-        'fb_stream' => NULL,
+        'fb_tabs' => NULL,
         'fb_show_faces' => NULL,
         'fb_force_wall' => NULL,
         'fb_width' => NULL,

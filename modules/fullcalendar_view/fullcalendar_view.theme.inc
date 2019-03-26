@@ -30,13 +30,40 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
   }
   // Current user.
   $user = $variables['user'];
-  // New event content type.
-  $event_content_type = $options['content_type'];
+  // CSRF token.
+  $token = '';
+  if (!$user->isAnonymous()) {
+    $token = \Drupal::csrfToken()->get($user->id());
+  }
+  // New event bundle type.
+  $event_bundle_type = $options['bundle_type'];
+  $entity_type = $view->getBaseEntityType();
+  if ($entity_type->id() === 'node') {
+    $add_form = 'node/add/' . $event_bundle_type;
+  }
+  else {
+    $entity_links = $entity_type->get('links');
+    if (isset($entity_links['add-form'])) {
+      $add_form = str_replace('{' . $entity_type->id() . '}', $event_bundle_type, $entity_links['add-form']);
+    }
+    elseif (isset($entity_links['add-page'])) {
+      $add_form = str_replace('{' . $entity_type->id() . '}', $event_bundle_type, $entity_links['add-page']);
+    }
+  }
+
+  // Can the user add a new event?
+  $dbl_click_to_create = FALSE;
+  if (!empty($user) && $user->hasPermission(strtolower("create $event_bundle_type " . $entity_type->getLabel()))) {
+    $dbl_click_to_create = TRUE;
+  }
+  // Pass entity type to twig template.
+  $variables['entity_id'] = $entity_type->id();
   // Update options for twig.
   $variables['options'] = $options;
   // Hide the create event link from user who doesn't have the permission
   // or if this feature is turn off.
-  $variables['showAddEvent'] = (!empty($user) && $user->hasPermission("create $event_content_type content")) && $options['createEventLink'] ? TRUE : FALSE;
+  $variables['showAddEvent'] = $dbl_click_to_create
+    && $options['createEventLink'];
 
   // Field machine name of start date.
   $start_field = $options['start'];
@@ -51,11 +78,23 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
   // Field machine name of taxonomy field.
   $tax_field = $options['tax_field'];
   // Default date of the calendar.
-  $default_date = $options['defaultDate'];
+  switch ($options['default_date_source']) {
+    case 'now':
+      $default_date = date('Y-m-d');
+      break;
+
+    case 'fixed':
+      $default_date = $options['defaultDate'];
+      break;
+
+    case 'first':
+      // Don't do anything, we'll set it below.
+      break;
+  }
   // Default Language.
   $default_lang = $options['defaultLanguage'];
-  // Color for content types.
-  $color_content = $options['color_contents'];
+  // Color for bundle types.
+  $color_content = $options['color_bundle'];
   // Color for taxonomies.
   $color_tax = $options['color_taxonomies'];
   // Date fields.
@@ -65,7 +104,8 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
   $timezone = !empty($start_field_option['settings']['timezone_override']) ?
     $start_field_option['settings']['timezone_override'] : drupal_get_user_timezone();
   // Open a new window for details of an event.
-  $link_to_entity = $fields['title']->options['settings']['link_to_entity'];
+  $title_field = (empty($options['title']) || $options['title'] == 'title') ? 'title' : $options['title'];
+  $link_to_entity = isset($fields[$title_field]->options['settings']['link_to_entity']) ? $fields[$title_field]->options['settings']['link_to_entity'] : FALSE;
   // Right side buttons.
   $right_buttons = 'month';
   foreach ($options['right_buttons'] as $key => $value) {
@@ -80,6 +120,8 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
     $timezone_service = \Drupal::service('fullcalendar_view.timezone_conversion_service');
     // Save view results into entries array.
     foreach ($view->result as $row) {
+      // Set the row_index property used by advancedRender function.
+      $view->row_index = $row->index;
       // Days of a week for a recurring event.
       $dow = NULL;
       // Days of a month for a recurring event.
@@ -137,16 +179,76 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
       $start_date = $current_entity->get($start_field)->getValue();
       // Calendar event end date.
       $end_date = empty($end_field) || !$current_entity->hasField($end_field) ? '' : $current_entity->get($end_field)->getValue();
-      // Description for events.
-      $des = empty($des_field) || !$current_entity->hasField($des_field) ? '' : $current_entity->get($des_field)->getValue();
-      if (is_array($des)) {
-        $des = reset($des);
-        if (isset($des['value'])) {
-          $des = $des['value'];
+      // Apart from start date and end date field,
+      // other fields might be rewritten by
+      // the field settgins of the view.
+      if ($options['use_entity_fields']) {
+        // Description for events. For multiple bundle types,
+        // there might be more than one field specified.
+        if (!empty($des_field) && is_array($des_field)) {
+          foreach ($des_field as $des_field_name) {
+            if ($current_entity->hasField($des_field_name)) {
+              $des = $current_entity->get($des_field_name)->getValue();
+              // We just need only one description text.
+              // Once we got it, quit the loop.
+              break;
+            }
+          }
+        }
+        if (!isset($des)) {
+          $des = '';
+        }
+        if (is_array($des)) {
+          $des = reset($des);
+          if (isset($des['value'])) {
+            $des = $des['value'];
+          }
+        }
+        // Event title.
+        if (empty($options['title']) || $options['title'] == 'title') {
+          $title = $current_entity->label();
+        }
+        elseif ($current_entity->hasField($options['title'])) {
+          $title = $current_entity->get($options['title'])->value;
+        }
+        else {
+          $title = 'Invalid event title';
         }
       }
-      // Event title.
-      $title = $current_entity->label();
+      else {
+        // Description for events. For multiple bundle types,
+        // there might be more than one field specified.
+        if (!empty($des_field) && is_array($des_field)) {
+          foreach ($des_field as $des_field_name) {
+            if ($row->_entity->hasField($des_field_name)) {
+              $des_raw = $fields[$des_field_name]->advancedRender($row);
+              $des = empty($des_raw) ? '' : $des_raw;
+              // We just need only one description text.
+              // Once we got it, quit the loop.
+              break;
+            }
+          }
+        }
+        if (!isset($des)) {
+          $des = '';
+        }
+        if (is_array($des)) {
+          $des = reset($des);
+          if (isset($des['value'])) {
+            $des = $des['value'];
+          }
+        }
+        // Event title.
+        if (empty($options['title']) || $options['title'] == 'title') {
+          $title = $fields['title']->advancedRender($row);
+        }
+        elseif ($current_entity->hasField($options['title'])) {
+          $title = $fields[$options['title']]->advancedRender($row);
+        }
+        else {
+          $title = 'Invalid event title';
+        }
+      }
       $entry = [
         'title' => $title,
         'description' => $des,
@@ -172,12 +274,16 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
           $entry['editable'] = FALSE;
         }
 
+        // If we don't yet know the default_date (we're configured to use the
+        // date from the first row, and we haven't set it yet), do so now.
+        if (!isset($default_date)) {
+          // Only use the first 10 digits since we only care about the date.
+          $default_date = substr($start_date, 0, 10);
+        }
+
         $all_day = (strlen($start_date) < 11) ? TRUE : FALSE;
 
         if ($all_day) {
-          // By default, Drupal store date time date in UTC timezone.
-          // So we need to convert it into user timezone.
-          $start = $timezone_service->utcToLocal($start_date, $timezone, 'Y-m-d');
           // Recurring event.
           if (!empty($dow) || !empty($dom)) {
             if (empty($options['business_start'])) {
@@ -187,10 +293,10 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
               $business_start = new DrupalDateTime($options['business_start']);
             }
             $entry['start'] = $business_start->format('H:i');
-            $range['start'] = $start;
+            $range['start'] = $start_date;
           }
           else {
-            $entry['start'] = $start;
+            $entry['start'] = $start_date;
           }
         }
         else {
@@ -212,7 +318,6 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
       }
       // Cope with end date in the same way as start date above.
       if (!empty($end_date)) {
-
         if ($end_field_option['type'] === 'timestamp') {
           $end_date = reset($end_date)['value'];
           $end_date = intval($end_date);
@@ -232,9 +337,10 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
         if (!empty($end_date)) {
           $all_day = (strlen($end_date) < 11) ? TRUE : FALSE;
           if ($all_day) {
-            // As designed, the end date is inclusive for all day event,
+            $end = new DrupalDateTime($end_date);
+            // The end date is inclusive for a all day event,
             // which is not what we want. So we need one day offset.
-            $end = $timezone_service->utcToLocal($end_date, $timezone, 'Y-m-d', '+1 day');
+            $end->modify('+1 day');
             // Recurring event.
             if (!empty($dow) || !empty($dom)) {
               if (!empty($options['business_end'])) {
@@ -244,10 +350,10 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
                 $business_end = new DrupalDateTime('2018-02-24T18:00:00');
               }
               $entry['end'] = $business_end->format('H:i');
-              $range['end'] = $end;
+              $range['end'] = $end->format('Y-m-d');
             }
             else {
-              $entry['end'] = $end;
+              $entry['end'] = $end->format('Y-m-d');
             }
           }
           else {
@@ -291,11 +397,8 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
       $entries[] = $entry;
     }
 
-    // Can the user add a new event?
-    $dbl_click_to_create = FALSE;
-    if ($user->hasPermission("create $event_content_type content")) {
-      $dbl_click_to_create = TRUE;
-    }
+    // Remove the row_index property as we don't it anymore.
+    unset($view->row_index);
 
     // Load tooltip plugin.
     if (!empty($des_field)) {
@@ -310,13 +413,17 @@ function template_preprocess_views_view_fullcalendar(array &$variables) {
       'defaultLang' => $default_lang,
       'languageSelector' => $options['languageSelector'],
       'alloweventOverlap' => $options['alloweventOverlap'],
+      'updateConfirm' => $options['updateConfirm'],
       'linkToEntity' => $link_to_entity,
-      'eventContentType' => $event_content_type,
+      'eventBundleType' => $event_bundle_type,
       'startField' => $start_field,
       'endField' => $end_field,
       'rightButtons' => $right_buttons,
       'dblClickToCreate' => $dbl_click_to_create,
-	  'navLinks' => $options['nav_links'],
+      'navLinks' => $options['nav_links'],
+      'entityType' => $entity_type->id(),
+      'addForm' => isset($add_form) ? $add_form : '',
+      'token' => $token,
     ];
   }
 }

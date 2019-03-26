@@ -9,37 +9,53 @@
 
 # Define text file attributes.
 # - Treat them as text.
-# - Ensure no CRLF line-endings, neither on checkeposipfC:msns textDetot  abittrpace errorribut ext.xe
-# debynly aultt
-# `rupadiff --color`posis,  CLIibut extVt ndatbe done`rupadiff --cfC:m`ibut extDekingpplyds m done`rupagpply --abittrpace=error-s i`ibut extFix automrmac# Nor done`rupagpply --abittrpace=fix`ib
-*.config Defineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.css     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.dist    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.eng
-# D efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
-*.bute    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
-*.
-# is i efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
-*.js      efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.jsosi   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.locki   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.map     efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.md      efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.modul D efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=php
-*.phpabittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeolpol,    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.mor iext face=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2adiff=butes*.inc     efineeolposcriptefineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.mosh    efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*  efineeolposql   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.mosvg   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.moeat e efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*  efineeolpotwig  efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.moext   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.moxml   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.moyml   efineeol=lf abittrpace=blank-at-eol,-blank-at-eof,-rpace-bebute-tab,tab-in-indent,tabwidth=2
-*.ed.
+# - Ensure no CRLF line-endings, neither on checkout nor on checkin.
+# - Detect whitespace errors.
+#   - Exposed by default in `git diff --color` on the CLI.
+#   - Validate with `git diff --check`.
+#   - Deny applying with `git apply --whitespace=error-all`.
+#   - Fix automatically with `git apply --whitespace=fix`.
 
-# Defbinasitext file attributes.
-DokepTre - Treat them as text.
-Includefbinasitff -- `rpatC:m
-# is 
-#  of "binasitext stff -er.".engot   ef-ineeoff -.engxe   ef-ineeoff -.engif   ef-ineeoff -.engz    ef-ineeoff -.enico   ef-ineeoff -.enjpeg  ef-ineeoff -.enjpg   ef-ineeoff -.enotf   ef-ineeoff -.enphar  ef-ineeoff -.enpng   ef-ineeoff -.ensvgz  ef-ineeoff -.enttf   ef-ineeoff -.enwoff  ef-ineeoff -.enwoff2 ef-ineeoff -.
+*.config  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.css     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.dist    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.engine  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.html    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=html
+*.inc     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.install text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.js      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.json    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.lock    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.map     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.md      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.module  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.php     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.po      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.profile text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.script  text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.sh      text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.sql     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.svg     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.theme   text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2 diff=php
+*.twig    text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.txt     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.xml     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+*.yml     text eol=lf whitespace=blank-at-eol,-blank-at-eof,-space-before-tab,tab-in-indent,tabwidth=2
+
+# Define binary file attributes.
+# - Do not treat them as text.
+# - Include binary diff in patches instead of "binary files differ."
+*.eot     -text diff
+*.exe     -text diff
+*.gif     -text diff
+*.gz      -text diff
+*.ico     -text diff
+*.jpeg    -text diff
+*.jpg     -text diff
+*.otf     -text diff
+*.phar    -text diff
+*.png     -text diff
+*.svgz    -text diff
+*.ttf     -text diff
+*.woff    -text diff
+*.woff2   -text diff

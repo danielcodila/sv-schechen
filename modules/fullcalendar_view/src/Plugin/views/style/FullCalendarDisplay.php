@@ -62,15 +62,18 @@ class FullCalendarDisplay extends StylePluginBase {
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
+    $options['default_date_source'] = ['default' => 'now'];
     $options['defaultDate'] = ['default' => ''];
     $options['start'] = ['default' => ''];
     $options['end'] = ['default' => ''];
     $options['des'] = ['default' => ''];
+    $options['title'] = ['default' => ''];
+    $options['use_entity_fields'] = ['default' => TRUE];
     $options['business_start'] = ['default' => ''];
     $options['business_end'] = ['default' => ''];
-    $options['content_type'] = ['default' => ''];
+    $options['bundle_type'] = ['default' => ''];
     $options['tax_field'] = ['default' => ''];
-    $options['color_contents'] = ['default' => []];
+    $options['color_bundle'] = ['default' => []];
     $options['color_taxonomies'] = ['default' => []];
     $options['vocabularies'] = ['default' => ''];
     $options['right_buttons'] = [
@@ -84,7 +87,8 @@ class FullCalendarDisplay extends StylePluginBase {
     $options['nav_links'] = ['default' => 1];
     $options['defaultLanguage'] = ['default' => 'en'];
     $options['languageSelector'] = ['default' => 0];
-	$options['alloweventOverlap'] = ['default' => 1];
+    $options['alloweventOverlap'] = ['default' => 1];
+    $options['updateConfirm'] = ['default' => 1];
     $options['createEventLink'] = ['default' => 0];
     return $options;
   }
@@ -99,15 +103,32 @@ class FullCalendarDisplay extends StylePluginBase {
     if (isset($form['grouping'])) {
       unset($form['grouping']);
     }
+    $form['default_date_source'] = [
+      '#type' => 'radios',
+      '#options' => [
+        'now' => t('Current date'),
+        'first' => t('Date of first view result'),
+        'fixed' => t('Fixed value'),
+      ],
+      '#title' => t('Default date source'),
+      '#default_value' => (isset($this->options['default_date_source'])) ? $this->options['default_date_source'] : '',
+      '#description' => t('Source of the initial date displayed when the calendar first loads.'),
+    ];
     // Default date of the calendar.
     $form['defaultDate'] = [
       '#type' => 'date',
-      '#title' => t('Default Date'),
+      '#title' => t('Default date'),
       '#default_value' => (isset($this->options['defaultDate'])) ? $this->options['defaultDate'] : '',
-      '#description' => t('The initial date displayed when the calendar first loads. If this option has not been specified, the current date is chosen as default.'),
+      '#description' => t('Fixed initial date displayed when the calendar first loads.'),
+      '#states' => [
+        'visible' => [
+          [':input[name="style_options[default_date_source]"]' => ['value' => 'fixed']],
+        ],
+      ],
     ];
     // All selected fields.
     $field_names = $this->displayHandler->getFieldLabels();
+    $entity_type = $this->view->getBaseEntityType()->id();
     // Field name of start date.
     $form['start'] = [
       '#title' => $this->t('Start Date Field'),
@@ -123,20 +144,35 @@ class FullCalendarDisplay extends StylePluginBase {
       '#empty_value' => '',
       '#default_value' => (!empty($this->options['end'])) ? $this->options['end'] : '',
     ];
+    // Field name of title.
+    $form['title'] = [
+      '#title' => $this->t('Title Field'),
+      '#type' => 'select',
+      '#options' => $field_names,
+      '#default_value' => (!empty($this->options['title'])) ? $this->options['title'] : '',
+    ];
     // Field for description.
     $form['des'] = [
       '#title' => $this->t('Description Field'),
-      '#description' => t('Description for event tooltip. If select none, there will not be popup tooltip.'),
+      '#description' => t('Description for event tooltip. If select none, there will not be popup tooltip. For multiple content types, you can select multiple fields here.'),
       '#type' => 'select',
       '#options' => $field_names,
       '#empty_value' => '',
       '#default_value' => (!empty($this->options['des'])) ? $this->options['des'] : '',
+      '#multiple' => TRUE,
     ];
     // Display settings.
     $form['display'] = [
       '#type' => 'details',
       '#title' => t('Display'),
       '#description' => t('Calendar display settings.'),
+    ];
+    $form['use_entity_fields'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Use entity fields'),
+      '#description' => $this->t('Use entity fields for rendering rather than the raw view fields. This is checked by default to prevent legacy views from breaking. However, it will prevent using views rewriting and does not support non-standard date fields (fields other than timestamp, datetime and daterange).'),
+      '#fieldset' => 'display',
+      '#default_value' => $this->options['use_entity_fields'],
     ];
     // Right side buttons.
     $form['right_buttons'] = [
@@ -165,6 +201,14 @@ class FullCalendarDisplay extends StylePluginBase {
       '#default_value' => (!isset($this->options['alloweventOverlap'])) ? 1 : $this->options['alloweventOverlap'],
       '#title' => $this->t('Allow calendar events to overlap'),
       '#description' => t('If this option is selected, calendar events are allowed to overlap (default).'),
+    ];
+    // Event update JS confirmation dialog.
+    $form['updateConfirm'] = [
+      '#type' => 'checkbox',
+      '#fieldset' => 'display',
+      '#default_value' => (!isset($this->options['updateConfirm'])) ? 1 : $this->options['updateConfirm'],
+      '#title' => $this->t('Event update confirmation pop-up dialog.'),
+      '#description' => t('If this option is selected, a confirmation dialog will pop-up after dragging and dropping an event.'),
     ];
     // Lanugage and Localization.
     $locale = [
@@ -274,7 +318,7 @@ class FullCalendarDisplay extends StylePluginBase {
     $tax_fields = [];
     // Find out all taxonomy reference fields of this View.
     foreach ($field_names as $field_name => $lable) {
-      $field_conf = FieldStorageConfig::loadByName('node', $field_name);
+      $field_conf = FieldStorageConfig::loadByName($entity_type, $field_name);
       if (empty($field_conf)) {
         continue;
       }
@@ -324,26 +368,23 @@ class FullCalendarDisplay extends StylePluginBase {
       $form['color_taxonomies'] = $this->taxonomyColorService->colorInputBoxs($this->options['vocabularies'], $this->options['color_taxonomies']);
     }
     // Content type colors.
-    $form['color_contents'] = [
+    $form['color_bundle'] = [
       '#type' => 'details',
-      '#title' => t('Colors for Content Types'),
-      '#description' => t('Specify colors for each content type. If taxonomy color is specified, this settings would be ignored.'),
+      '#title' => t('Colors for Bundle Types'),
+      '#description' => t('Specify colors for each bundle type. If taxonomy color is specified, this settings would be ignored.'),
       '#fieldset' => 'colors',
     ];
-    // All content types.
-    $contentTypes = \Drupal::service('entity_type.manager')
-      ->getStorage('node_type')
-      ->loadMultiple();
+    // All bundle types.
+    $bundles = \Drupal::service('entity_type.bundle.info')->getBundleInfo($entity_type);
     // Options list.
-    $contentTypesList = [];
-    foreach ($contentTypes as $contentType) {
-      $id = $contentType->id();
-      $label = $contentType->label();
-      $contentTypesList[$id] = $label;
+    $bundlesList = [];
+    foreach ($bundles as $id => $bundle) {
+      $label = $bundle['label'];
+      $bundlesList[$id] = $label;
       // Content type colors.
-      $form['color_contents'][$id] = [
+      $form['color_bundle'][$id] = [
         '#title' => $label,
-        '#default_value' => isset($this->options['color_contents'][$id]) ? $this->options['color_contents'][$id] : '#3a87ad',
+        '#default_value' => isset($this->options['color_bundle'][$id]) ? $this->options['color_bundle'][$id] : '#3a87ad',
         '#type' => 'color',
       ];
     }
@@ -382,13 +423,13 @@ class FullCalendarDisplay extends StylePluginBase {
         '#date_time_format' => 'H:i',
       ];
     }
-    // New event content type.
-    $form['content_type'] = [
-      '#title' => $this->t('Event content type'),
-      '#description' => $this->t('The content type of a new event. Once this is set, you can create a new event by double clicking a calendar entry.'),
+    // New event bundle type.
+    $form['bundle_type'] = [
+      '#title' => $this->t('Event bundle (Content) type'),
+      '#description' => $this->t('The bundle (content) type of a new event. Once this is set, you can create a new event by double clicking a calendar entry.'),
       '#type' => 'select',
-      '#options' => $contentTypesList,
-      '#default_value' => (!empty($this->options['content_type'])) ? $this->options['content_type'] : '',
+      '#options' => $bundlesList,
+      '#default_value' => (!empty($this->options['bundle_type'])) ? $this->options['bundle_type'] : '',
     ];
     // Extra CSS classes.
     $form['classes'] = [
