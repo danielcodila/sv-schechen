@@ -1,0 +1,16 @@
+/* ckeditor accordion overrides*/
+
+.ckeditor-accordion-container > dl dt.active > a,
+.ckeditor-accordion-container > dl dt > a,
+.ckeditor-accordion-container > dl dt > a:hover {
+    background: rgba(59, 89, 152, 0.95);
+    border-color: rgba(59, 89, 152, 0.95);
+}
+.ckeditor-accordion-container > dl {
+    border-color: rgba(59, 89, 152, 0.95);
+}
+
+/* Input fields border */
+.form__input--border {
+    border-color: rgba(59, 89, 152, 0.95);
+}
