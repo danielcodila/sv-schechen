@@ -14,3 +14,8 @@
 .form__input--border {
     border-color: rgba(59, 89, 152, 0.95);
 }
+
+/* Flex Slider */
+.flex-caption {
+    display: none;
+}
