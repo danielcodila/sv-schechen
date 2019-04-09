@@ -19,3 +19,8 @@
 .flex-caption {
     display: none;
 }
+
+/**/
+.node--type-article .node__meta-date{
+    display: none;
+}
