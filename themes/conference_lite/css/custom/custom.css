@@ -30,7 +30,8 @@
 .field--type-string input,
 .field--type-email input,
 .field--type-integer input,
-.field--type-list-string input {
+.field--type-list-string input
+.field--type-string-long textarea{
     border-color: #3b5998;
 }
 
