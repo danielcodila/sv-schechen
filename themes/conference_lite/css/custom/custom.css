@@ -29,7 +29,8 @@
 /* Forms*/
 .field--type-string input,
 .field--type-email input,
-.field--type-integer input {
+.field--type-integer input,
+.field--type-list-string input {
     border-color: #3b5998;
 }
 
@@ -39,20 +40,24 @@
 }
 
 .field--type-datetime .label,
-.field--type-boolean .fieldset-legend {
+.field--type-boolean .fieldset-legend
+.field--type-list-string .fieldset-legend {
     font-weight: normal;
     font-size: 15px;
 }
 
-.field--type-boolean legend {
+.field--type-boolean legend,
+.field--type-list-string legend {
     border: none;
 }
 
-.field--type-boolean .form-radios {
+.field--type-boolean .form-radios,
+.field--type-list-string .form-checkboxes {
     display: inline-flex;
 }
 
-.field--type-boolean .form-type-radio {
+.field--type-boolean .form-type-radio,
+.field--type-list-string .form-type-checkbox {
     padding-right: 20px;
 }
 
