@@ -40,7 +40,7 @@
 }
 
 .field--type-datetime .label,
-.field--type-boolean .fieldset-legend
+.field--type-boolean .fieldset-legend,
 .field--type-list-string .fieldset-legend {
     font-weight: normal;
     font-size: 15px;
