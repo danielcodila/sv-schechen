@@ -6,6 +6,7 @@
     background: rgba(59, 89, 152, 0.95);
     border-color: rgba(59, 89, 152, 0.95);
 }
+
 .ckeditor-accordion-container > dl {
     border-color: rgba(59, 89, 152, 0.95);
 }
@@ -21,6 +22,37 @@
 }
 
 /**/
-.node--type-article .node__meta-date{
+.node--type-article .node__meta-date {
     display: none;
 }
+
+/* Forms*/
+.field--type-string input,
+.field--type-email input,
+.field--type-integer input {
+    border-color: #3b5998;
+}
+
+.field--type-datetime input {
+    width: 100% !important;
+    border-color: #3b5998;
+}
+
+.field--type-datetime .label,
+.field--type-boolean .fieldset-legend {
+    font-weight: normal;
+    font-size: 15px;
+}
+
+.field--type-boolean legend {
+    border: none;
+}
+
+.field--type-boolean .form-radios {
+    display: inline-flex;
+}
+
+.field--type-boolean .form-type-radio {
+    padding-right: 20px;
+}
+
