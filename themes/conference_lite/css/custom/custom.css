@@ -21,6 +21,12 @@
     display: none;
 }
 
+/* General*/
+
+table.no-border td{
+    border: none;
+}
+
 /**/
 .node--type-article .node__meta-date {
     display: none;
