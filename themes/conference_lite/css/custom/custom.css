@@ -69,3 +69,12 @@ table.no-border td{
     padding-right: 20px;
 }
 
+/* Abteilungsleitung */
+.view-abteilungsleitung .row  {
+    padding: 10px 0;
+}
+
+.view-abteilungsleitung .views-field-name {
+    border-bottom: 1px solid #3b5998;
+    margin-bottom: 10px;
+}
