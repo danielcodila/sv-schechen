@@ -1553,6 +1553,58 @@
         }
     },
     {
+        "name": "drupal/geofield_map",
+        "version": "2.38.0",
+        "version_normalized": "2.38.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://git.drupalcode.org/project/geofield_map.git",
+            "reference": "8.x-2.38"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://ftp.drupal.org/files/projects/geofield_map-8.x-2.38.zip",
+            "reference": "8.x-2.38",
+            "shasum": "f6a708e84e0c889ab86afd284f11be426a73b05d"
+        },
+        "require": {
+            "drupal/core": "~8.0",
+            "drupal/geofield": "^1.0"
+        },
+        "type": "drupal-module",
+        "extra": {
+            "branch-alias": {
+                "dev-2.x": "2.x-dev"
+            },
+            "drupal": {
+                "version": "8.x-2.38",
+                "datestamp": "1558184286",
+                "security-coverage": {
+                    "status": "not-covered",
+                    "message": "Project has not opted into security advisory coverage!"
+                }
+            }
+        },
+        "installation-source": "dist",
+        "notification-url": "https://packages.drupal.org/8/downloads",
+        "license": [
+            "GPL-2.0+"
+        ],
+        "authors": [
+            {
+                "name": "Italo Mairo",
+                "homepage": "https://www.drupal.org/u/itamair",
+                "role": "Creator/Maintainer"
+            }
+        ],
+        "description": "Geofield Map is an advanced, complete and easy-to-use Geo Mapping solution for Drupal 8, based on and fully compatible with the Geofield module.",
+        "homepage": "https://www.drupal.org/project/geofield_map",
+        "support": {
+            "source": "https://git.drupalcode.org/project/geofield_map",
+            "issues": "https://www.drupal.org/project/issues/geofield_map"
+        }
+    },
+    {
         "name": "drupal/hide_preview",
         "version": "1.0.0",
         "version_normalized": "1.0.0.0",

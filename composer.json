@@ -19,7 +19,8 @@
         "drupal/fb_likebox": "^2.1",
         "drupal/editor_advanced_link": "^1.4",
         "drupal/ds": "^3.3",
-        "drupal/ckeditor_accordion": "^1.2"
+        "drupal/ckeditor_accordion": "^1.2",
+        "drupal/geofield_map": "^2.38"
     },
     "replace": {
         "drupal/core": "^8.7"
