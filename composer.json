@@ -21,7 +21,8 @@
         "drupal/ds": "^3.3",
         "drupal/ckeditor_accordion": "^1.2",
         "drupal/geofield_map": "^2.38",
-        "drupal/recaptcha": "^2.4"
+        "drupal/recaptcha": "^2.4",
+        "drupal/webform": "^5.10"
     },
     "replace": {
         "drupal/core": "^8.7"
