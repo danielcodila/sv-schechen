@@ -23,7 +23,8 @@
         "drupal/geofield_map": "^2.38",
         "drupal/recaptcha": "^2.4",
         "drupal/webform": "^5.11",
-        "drupal/calendar_datetime": "^1.0@alpha"
+        "drupal/calendar_datetime": "^1.0@alpha",
+        "drupal/entity_print": "^2.1"
     },
     "replace": {
         "drupal/core": "^8.7"
