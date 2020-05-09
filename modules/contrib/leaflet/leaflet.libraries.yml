@@ -17,6 +17,15 @@ leaflet:
     component:
       js/leaflet/dist/leaflet.css: {}
 
+leaflet-drupal:
+  version: VERSION
+  js:
+    leaflet.drupal.js: {}
+  dependencies:
+    - leaflet/leaflet
+    - core/jquery
+    - core/drupal
+
 # Control Fullscreen
 leaflet.fullscreen:
   header: true
@@ -34,11 +43,30 @@ leaflet.fullscreen:
   dependencies:
     - leaflet/leaflet
 
-leaflet-drupal:
-    version: VERSION
-    js:
-      leaflet.drupal.js: {}
-    dependencies:
-      - leaflet/leaflet
-      - core/jquery
-      - core/drupal
+# Gesture Handling Leaflet Library
+leaflet.gesture_handling:
+  header: true
+  remote: https://github.com/elmarquis/Leaflet.GestureHandling
+  version: '1.0.1'
+  license:
+    name: MIT License
+    url: https://raw.githubusercontent.com/elmarquis/Leaflet.GestureHandling/master/LICENSE
+    gpl-compatible: no
+  css:
+    component:
+      'https://unpkg.com/leaflet-gesture-handling/dist/leaflet-gesture-handling.min.css': { type: external}
+  js:
+    'https://unpkg.com/leaflet-gesture-handling': { type: external, minified: true }
+  dependencies:
+    - leaflet/leaflet
+
+leaflet.geocoder:
+  version: 1.x
+  css:
+    component:
+      css/leaflet_geocoder.css: {}
+  js:
+    js/leaflet.geocoder.drupal.js: {}
+  dependencies:
+    - core/drupal.autocomplete
+    - leaflet/leaflet-drupal

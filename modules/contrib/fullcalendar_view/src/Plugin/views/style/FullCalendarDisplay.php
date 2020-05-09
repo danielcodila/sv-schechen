@@ -5,7 +5,11 @@ namespace Drupal\fullcalendar_view\Plugin\views\style;
 use Drupal\field\Entity\FieldStorageConfig;
 use Drupal\fullcalendar_view\TaxonomyColor;
 use Drupal\core\form\FormStateInterface;
+use Drupal\datetime\Plugin\Field\FieldType\DateTimeItemInterface;
 use Drupal\views\Plugin\views\style\StylePluginBase;
+use Drupal\Component\Utility\Xss;
+use Drupal\Core\Link;
+use Drupal\Core\Url;
 use Drupal\Core\Datetime\DrupalDateTime;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -84,12 +88,17 @@ class FullCalendarDisplay extends StylePluginBase {
           'listYear' => 'listYear',
         ],
     ];
+    $options['default_view'] = ['default' => 'month'];
     $options['nav_links'] = ['default' => 1];
+    $options['timeFormat'] = ['default' => 'H(:mm)'];
     $options['defaultLanguage'] = ['default' => 'en'];
     $options['languageSelector'] = ['default' => 0];
     $options['alloweventOverlap'] = ['default' => 1];
+    $options['updateAllowed'] = ['default' => 1];
     $options['updateConfirm'] = ['default' => 1];
+    $options['dialogWindow'] = ['default' => 0];
     $options['createEventLink'] = ['default' => 0];
+    $options['openEntityInNewTab'] = ['default' => 1];
     return $options;
   }
 
@@ -106,20 +115,20 @@ class FullCalendarDisplay extends StylePluginBase {
     $form['default_date_source'] = [
       '#type' => 'radios',
       '#options' => [
-        'now' => t('Current date'),
-        'first' => t('Date of first view result'),
-        'fixed' => t('Fixed value'),
+        'now' => $this->t('Current date'),
+        'first' => $this->t('Date of first view result'),
+        'fixed' => $this->t('Fixed value'),
       ],
-      '#title' => t('Default date source'),
+      '#title' => $this->t('Default date source'),
       '#default_value' => (isset($this->options['default_date_source'])) ? $this->options['default_date_source'] : '',
-      '#description' => t('Source of the initial date displayed when the calendar first loads.'),
+      '#description' => $this->t('Source of the initial date displayed when the calendar first loads.'),
     ];
     // Default date of the calendar.
     $form['defaultDate'] = [
       '#type' => 'date',
-      '#title' => t('Default date'),
+      '#title' => $this->t('Default date'),
       '#default_value' => (isset($this->options['defaultDate'])) ? $this->options['defaultDate'] : '',
-      '#description' => t('Fixed initial date displayed when the calendar first loads.'),
+      '#description' => $this->t('Fixed initial date displayed when the calendar first loads.'),
       '#states' => [
         'visible' => [
           [':input[name="style_options[default_date_source]"]' => ['value' => 'fixed']],
@@ -154,7 +163,7 @@ class FullCalendarDisplay extends StylePluginBase {
     // Field for description.
     $form['des'] = [
       '#title' => $this->t('Description Field'),
-      '#description' => t('Description for event tooltip. If select none, there will not be popup tooltip. For multiple content types, you can select multiple fields here.'),
+      '#description' => $this->t('Description for event tooltip. If select none, there will not be popup tooltip. For multiple content types, you can select multiple fields here.'),
       '#type' => 'select',
       '#options' => $field_names,
       '#empty_value' => '',
@@ -164,8 +173,8 @@ class FullCalendarDisplay extends StylePluginBase {
     // Display settings.
     $form['display'] = [
       '#type' => 'details',
-      '#title' => t('Display'),
-      '#description' => t('Calendar display settings.'),
+      '#title' => $this->t('Display'),
+      '#description' => $this->t('Calendar display settings.'),
     ];
     $form['use_entity_fields'] = [
       '#type' => 'checkbox',
@@ -186,13 +195,55 @@ class FullCalendarDisplay extends StylePluginBase {
       '#default_value' => (empty($this->options['right_buttons'])) ? [] : $this->options['right_buttons'],
       '#title' => $this->t('Right side buttons'),
     ];
+    // Default view.
+    // Todo: filter out disabled view from options.
+    $form['default_view'] = [
+      '#type' => 'radios',
+      '#fieldset' => 'display',
+      '#options' => [
+        'month' => $this->t('Month'),
+        'agendaWeek' => $this->t('Week'),
+        'agendaDay' => $this->t('Day'),
+        'listYear' => $this->t('List'),
+      ],
+      '#default_value' => (empty($this->options['default_view'])) ? 'month' : $this->options['default_view'],
+      '#title' => $this->t('Default view'),
+    ];
+    // First day.
+    $form['firstDay'] = [
+      '#type' => 'radios',
+      '#fieldset' => 'display',
+      '#options' => [
+        '0' => $this->t('Sunday'),
+        '1' => $this->t('Monday'),
+        '2' => $this->t('Tuesday'),
+        '3' => $this->t('Wednesday'),
+        '4' => $this->t('Thursday'),
+        '5' => $this->t('Friday'),
+        '6' => $this->t('Saturday'),
+      ],
+      '#default_value' => (empty($this->options['firstDay'])) ? '0' : $this->options['firstDay'],
+      '#title' => $this->t('First Day'),
+    ];
     // Nav Links.
     $form['nav_links'] = [
       '#type' => 'checkbox',
       '#fieldset' => 'display',
       '#default_value' => (!isset($this->options['nav_links'])) ? 1 : $this->options['nav_links'],
       '#title' => $this->t('Day/Week are links'),
-      '#description' => t('If this option is selected, day/week names will be linked to navigation views.'),
+      '#description' => $this->t('If this option is selected, day/week names will be linked to navigation views.'),
+    ];
+    // Time format
+    $form['timeFormat'] = [
+      '#fieldset' => 'display',
+      '#type' => 'textfield',
+      '#title' => $this->t('Time Format settings for month view'),
+      '#default_value' => (isset($this->options['timeFormat'])) ? $this->options['timeFormat'] : 'HH:mm',
+      '#description' => $this->t('See the %fullcalendar_doc and %momentjs_doc for available formatting options. <br />Leave it blank to default format.', array(
+        '%fullcalendar_doc' => Link::fromTextAndUrl($this->t('Fullcalendar documentation'), Url::fromUri('https://fullcalendar.io/docs/v3/timeFormat', array('attributes' => array('target' => '_blank'))))->toString(),
+        '%momentjs_doc' => Link::fromTextAndUrl($this->t('MomentJS’s formatting characters'), Url::fromUri('http://momentjs.com/docs/#/displaying/format/', array('attributes' => array('target' => '_blank'))))->toString(),
+      )),
+      '#size' => 20,
     ];
     // Allow/disallow event overlap.
     $form['alloweventOverlap'] = [
@@ -200,7 +251,15 @@ class FullCalendarDisplay extends StylePluginBase {
       '#fieldset' => 'display',
       '#default_value' => (!isset($this->options['alloweventOverlap'])) ? 1 : $this->options['alloweventOverlap'],
       '#title' => $this->t('Allow calendar events to overlap'),
-      '#description' => t('If this option is selected, calendar events are allowed to overlap (default).'),
+      '#description' => $this->t('If this option is selected, calendar events are allowed to overlap (default).'),
+    ];
+    // Allow/disallow event editing.
+    $form['updateAllowed'] = [
+      '#type' => 'checkbox',
+      '#fieldset' => 'display',
+      '#default_value' => (!isset($this->options['updateAllowed'])) ? 1 : $this->options['updateAllowed'],
+      '#title' => $this->t('Allow event editing.'),
+      '#description' => $this->t('If this option is selected, editing by dragging and dropping an event will be enabled.'),
     ];
     // Event update JS confirmation dialog.
     $form['updateConfirm'] = [
@@ -208,10 +267,11 @@ class FullCalendarDisplay extends StylePluginBase {
       '#fieldset' => 'display',
       '#default_value' => (!isset($this->options['updateConfirm'])) ? 1 : $this->options['updateConfirm'],
       '#title' => $this->t('Event update confirmation pop-up dialog.'),
-      '#description' => t('If this option is selected, a confirmation dialog will pop-up after dragging and dropping an event.'),
+      '#description' => $this->t('If this option is selected, a confirmation dialog will pop-up after dragging and dropping an event.'),
     ];
-    // Lanugage and Localization.
+    // Language and Localization.
     $locale = [
+      'current_lang' => $this->t('Current active language on the page'),
       'en' => 'English',
       'af' => 'Afrikaans',
       'ar-dz' => 'Arabic - Algeria',
@@ -298,19 +358,33 @@ class FullCalendarDisplay extends StylePluginBase {
       '#default_value' => (empty($this->options['languageSelector'])) ? 0 : $this->options['languageSelector'],
       '#title' => $this->t('Allow client to select language.'),
     ];
+    $form['dialogWindow'] = [
+      '#type' => 'checkbox',
+      '#fieldset' => 'display',
+      '#default_value' => (empty($this->options['dialogWindow'])) ? 0 : $this->options['dialogWindow'],
+      '#title' => $this->t('Open event links in dialog window.'),
+      '#description' => $this->t('If this option is selected and the title field is linked to entity, event links in the calendar will open in a dialog window.'),
+    ];
     // Create new event link.
     $form['createEventLink'] = [
       '#type' => 'checkbox',
       '#fieldset' => 'display',
       '#default_value' => (empty($this->options['createEventLink'])) ? 0 : $this->options['createEventLink'],
       '#title' => $this->t('Create a new event via the Off-Canvas dialog.'),
-      '#description' => t('If this option is selected, there wiil be an Add Event link below the calendar that provides the ability to create an event In-Place.'),
+      '#description' => $this->t('If this option is selected, there wiil be an Add Event link below the calendar that provides the ability to create an event In-Place.'),
+    ];
+    // Open details in new window.
+    $form['openEntityInNewTab'] = [
+      '#type' => 'checkbox',
+      '#fieldset' => 'display',
+      '#default_value' => !isset($this->options['openEntityInNewTab']) ? 1 : $this->options['openEntityInNewTab'],
+      '#title' => $this->t('Open entities (calendar items) into new tabs'),
     ];
     // Legend colors.
     $form['colors'] = [
       '#type' => 'details',
-      '#title' => t('Legend Colors'),
-      '#description' => t('Set color value of legends for each content type or each taxonomy.'),
+      '#title' => $this->t('Legend Colors'),
+      '#description' => $this->t('Set color value of legends for each content type or each taxonomy.'),
     ];
     // All vocabularies.
     $cabNames = taxonomy_vocabulary_get_names();
@@ -326,42 +400,46 @@ class FullCalendarDisplay extends StylePluginBase {
         $tax_fields[$field_name] = $lable;
       }
     }
-    // Field name of event taxonomy.
-    $form['tax_field'] = [
-      '#title' => $this->t('Event Taxonomy Field'),
-      '#description' => t('In order to specify colors for event taxonomies, you must select a taxonomy reference field for the View.'),
-      '#type' => 'select',
-      '#options' => $tax_fields,
-      '#empty_value' => '',
-      '#disabled' => empty($tax_fields),
-      '#fieldset' => 'colors',
-      '#default_value' => (!empty($this->options['tax_field'])) ? $this->options['tax_field'] : '',
-    ];
-    // Color for vocabularies.
-    $form['vocabularies'] = [
-      '#title' => $this->t('Vocabularies'),
-      '#type' => 'select',
-      '#options' => $cabNames,
-      '#empty_value' => '',
-      '#fieldset' => 'colors',
-      '#description' => t('Specify which vocabulary is using for calendar event color. If the vocabulary selected is not the one that the taxonomy field belonging to, the color setting would be ignored.'),
-      '#default_value' => (!empty($this->options['vocabularies'])) ? $this->options['vocabularies'] : '',
-      '#states' => [
-        // Only show this field when the 'tax_field' is selected.
-        'invisible' => [
-          [':input[name="style_options[tax_field]"]' => ['value' => '']],
+    
+    $moduleHandler = \Drupal::service('module_handler');
+    if ($moduleHandler->moduleExists('taxonomy')) {
+      // Field name of event taxonomy.
+      $form['tax_field'] = [
+        '#title' => $this->t('Event Taxonomy Field'),
+        '#description' => $this->t('In order to specify colors for event taxonomies, you must select a taxonomy reference field for the View.'),
+        '#type' => 'select',
+        '#options' => $tax_fields,
+        '#empty_value' => '',
+        '#disabled' => empty($tax_fields),
+        '#fieldset' => 'colors',
+        '#default_value' => (!empty($this->options['tax_field'])) ? $this->options['tax_field'] : '',
+      ];
+      // Color for vocabularies.
+      $form['vocabularies'] = [
+        '#title' => $this->t('Vocabularies'),
+        '#type' => 'select',
+        '#options' => $cabNames,
+        '#empty_value' => '',
+        '#fieldset' => 'colors',
+        '#description' => $this->t('Specify which vocabulary is using for calendar event color. If the vocabulary selected is not the one that the taxonomy field belonging to, the color setting would be ignored.'),
+        '#default_value' => (!empty($this->options['vocabularies'])) ? $this->options['vocabularies'] : '',
+        '#states' => [
+          // Only show this field when the 'tax_field' is selected.
+          'invisible' => [
+            [':input[name="style_options[tax_field]"]' => ['value' => '']],
+          ],
         ],
-      ],
-      '#ajax' => [
-        'callback' => 'Drupal\fullcalendar_view\Plugin\views\style\FullCalendarDisplay::taxonomyColorCallback',
-        'event' => 'change',
-        'wrapper' => 'color-taxonomies-div',
-        'progress' => [
-          'type' => 'throbber',
-          'message' => t('Verifying entry...'),
+        '#ajax' => [
+          'callback' => 'Drupal\fullcalendar_view\Plugin\views\style\FullCalendarDisplay::taxonomyColorCallback',
+          'event' => 'change',
+          'wrapper' => 'color-taxonomies-div',
+          'progress' => [
+            'type' => 'throbber',
+            'message' => $this->t('Verifying entry...'),
+          ],
         ],
-      ],
-    ];
+      ];
+    }
 
     if (!isset($form_state->getUserInput()['style_options'])) {
       // Taxonomy color input boxes.
@@ -370,8 +448,8 @@ class FullCalendarDisplay extends StylePluginBase {
     // Content type colors.
     $form['color_bundle'] = [
       '#type' => 'details',
-      '#title' => t('Colors for Bundle Types'),
-      '#description' => t('Specify colors for each bundle type. If taxonomy color is specified, this settings would be ignored.'),
+      '#title' => $this->t('Colors for Bundle Types'),
+      '#description' => $this->t('Specify colors for each bundle type. If taxonomy color is specified, this settings would be ignored.'),
       '#fieldset' => 'colors',
     ];
     // All bundle types.
@@ -388,19 +466,19 @@ class FullCalendarDisplay extends StylePluginBase {
         '#type' => 'color',
       ];
     }
-    $moduleHandler = \Drupal::service('module_handler');
+
     if ($moduleHandler->moduleExists('calendar_recurring_event')) {
       // Recurring event.
       $form['recurring'] = [
         '#type' => 'details',
-        '#title' => t('Recurring event settings'),
-          // '#description' =>  t('Settings for recurring event.'),.
+        '#title' => $this->t('Recurring event settings'),
+          // '#description' =>  $this->t('Settings for recurring event.'),.
       ];
       // Recurring business start time.
       $form['business_start'] = [
         '#type' => 'datetime',
-        '#title' => t('Business start time'),
-        '#description' => t('The time of a day when a recurring all day event starts. The recurring events whose start date include hour and minute will use their respective start time instead.'),
+        '#title' => $this->t('Business start time'),
+        '#description' => $this->t('The time of a day when a recurring all day event starts. The recurring events whose start date include hour and minute will use their respective start time instead.'),
         '#fieldset' => 'recurring',
         '#default_value' => empty($this->options['business_start']) ? new DrupalDateTime('2018-02-24T08:00:00') : new DrupalDateTime($this->options['business_start']),
       // Hide date element.
@@ -412,8 +490,8 @@ class FullCalendarDisplay extends StylePluginBase {
       // Recurring business end time.
       $form['business_end'] = [
         '#type' => 'datetime',
-        '#title' => t('Business end time'),
-        '#description' => t('The time of a day when a recurring event ends. The recurring events whose end date include hour and minute will use their respective end time instead.'),
+        '#title' => $this->t('Business end time'),
+        '#description' => $this->t('The time of a day when a recurring event ends. The recurring events whose end date include hour and minute will use their respective end time instead.'),
         '#fieldset' => 'recurring',
         '#default_value' => empty($this->options['business_end']) ? new DrupalDateTime('2018-02-24T18:00:00') : new DrupalDateTime($this->options['business_end']),
       // Hide date element.
@@ -421,6 +499,15 @@ class FullCalendarDisplay extends StylePluginBase {
       // You can use text element here as well.
         '#date_time_element' => 'time',
         '#date_time_format' => 'H:i',
+      ];
+      // Field name of excluding dates.
+      $form['excluding_dates'] = [
+        '#title' => $this->t('Excluding dates Field'),
+        '#description' => $this->t('Choose field date with excluding dates.'),
+        '#type' => 'select',
+        '#fieldset' => 'recurring',
+        '#options' => $field_names,
+        '#default_value' => (!empty($this->options['excluding_dates'])) ? $this->options['excluding_dates'] : '',
       ];
     }
     // New event bundle type.
@@ -434,9 +521,9 @@ class FullCalendarDisplay extends StylePluginBase {
     // Extra CSS classes.
     $form['classes'] = [
       '#type' => 'textfield',
-      '#title' => t('CSS classes'),
+      '#title' => $this->t('CSS classes'),
       '#default_value' => (isset($this->options['classes'])) ? $this->options['classes'] : '',
-      '#description' => t('CSS classes for further customization of this view.'),
+      '#description' => $this->t('CSS classes for further customization of this view.'),
     ];
   }
 
@@ -457,11 +544,14 @@ class FullCalendarDisplay extends StylePluginBase {
     }
     // Datetime fields in Drupal 8 are stored as strings.
     if (isset($options['business_start'])) {
-      $options['business_start'] = $options['business_start']->format(DATETIME_DATETIME_STORAGE_FORMAT);
+      $options['business_start'] = $options['business_start']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT );
     }
     if (isset($options['business_end'])) {
-      $options['business_end'] = $options['business_end']->format(DATETIME_DATETIME_STORAGE_FORMAT);
+      $options['business_end'] = $options['business_end']->format(DateTimeItemInterface::DATETIME_STORAGE_FORMAT );
     }
+    
+    // Sanitize user input.
+    $options['timeFormat'] = Xss::filter($options['timeFormat']);
 
     parent::submitOptionsForm($form, $form_state);
   }

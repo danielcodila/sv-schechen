@@ -1,14 +1,12 @@
-name: Preview button hider
+name: Hide Preview Button
 description: Hides the preview button on the contact form.
 package: Form
-
 type: module
-# core: 8.x
-
+core: 8.x
+core_version_requirement: ^8 || ^9
 configure: hide_preview.settings
 
-# Information added by Drupal.org packaging script on 2017-04-15
-version: '8.x-1.0'
-core: '8.x'
+# Information added by Drupal.org packaging script on 2019-12-27
+version: '8.x-1.3'
 project: 'hide_preview'
-datestamp: 1492254711
+datestamp: 1577444590
